@@ -38,6 +38,15 @@ func New() http.Handler {
 			return
 		}
 
+		if req.Image == nil {
+			fail(c, http.StatusBadRequest, fmt.Errorf("no image provided"))
+			return
+		}
+		if req.Width == 0 {
+			fail(c, http.StatusBadRequest, fmt.Errorf("no width provided"))
+			return
+		}
+
 		img, err := decodeImage(&req)
 		if err != nil {
 			fail(c, http.StatusBadRequest, err)

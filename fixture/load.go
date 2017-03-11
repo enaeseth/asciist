@@ -8,10 +8,10 @@
 package fixture
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -21,21 +21,21 @@ import (
 	_ "image/png"
 )
 
-// LoadFixture loads a fixture image bundled with this package. The width used
+// ReadFixture loads a fixture image bundled with this package. The width used
 // in rendering is determined automatically from the length of the first line
 // of the saved (known-good) output.
 // This must be called from a working directory adjacent to the fixture directory.
-func LoadFixture(imgFilename string) (img image.Image, width uint, art string) {
+func ReadFixture(imgFilename string) (img *bytes.Reader, width uint, art string) {
 	basePath := filepath.Join("..", "fixture")
 	imgPath := filepath.Join(basePath, imgFilename)
 	artFilename := fmt.Sprintf("%s.txt", strings.TrimSuffix(imgFilename, filepath.Ext(imgFilename)))
 	artPath := filepath.Join(basePath, artFilename)
 
-	imgFile, err := os.Open(imgPath)
+	imgBytes, err := ioutil.ReadFile(imgPath)
 	if err != nil {
 		panic(err)
 	}
-	defer imgFile.Close()
+	img = bytes.NewReader(imgBytes)
 
 	artBytes, err := ioutil.ReadFile(artPath)
 	if err != nil {
@@ -49,7 +49,17 @@ func LoadFixture(imgFilename string) (img image.Image, width uint, art string) {
 	}
 	width = uint(index)
 
-	img, _, err = image.Decode(imgFile)
+	return
+}
+
+// LoadFixture loads a fixture image bundled with this package. The width used
+// in rendering is determined automatically from the length of the first line
+// of the saved (known-good) output.
+// This must be called from a working directory adjacent to the fixture directory.
+func LoadFixture(imgFilename string) (img image.Image, width uint, art string) {
+	imgReader, width, art := ReadFixture(imgFilename)
+
+	img, _, err := image.Decode(imgReader)
 	if err != nil {
 		panic(err)
 	}
