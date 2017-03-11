@@ -7,10 +7,10 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
+	"net/http"
 	"os"
 
 	"gopkg.in/alecthomas/kingpin.v2"
-	"gopkg.in/gin-gonic/gin.v1"
 
 	"github.com/enaeseth/asciist/client"
 	"github.com/enaeseth/asciist/convert"
@@ -60,17 +60,12 @@ func runClient() {
 }
 
 func runService() {
-	if *debug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
+	service.SetDebug(*debug)
 	listen := fmt.Sprintf("%s:%d", *host, *port)
 	s := service.New()
 
 	fmt.Printf("Listening on %s\n", listen)
-	s.Run(listen)
+	http.ListenAndServe(listen, s)
 }
 
 func runLocal() {

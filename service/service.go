@@ -15,7 +15,15 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
-func New() *gin.Engine {
+func SetDebug(debug bool) {
+	if debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
+func New() http.Handler {
 	router := gin.Default()
 
 	router.POST("/", func(c *gin.Context) {
