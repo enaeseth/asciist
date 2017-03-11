@@ -1,3 +1,4 @@
+// Package service provides the asciist HTTP service.
 package service
 
 import (
@@ -15,6 +16,8 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
+// SetDebug enables or disables the debug mode of the underlying HTTP framework.
+// Call SetDebug before creating an instance of the service with New.
 func SetDebug(debug bool) {
 	if debug {
 		gin.SetMode(gin.DebugMode)
@@ -23,6 +26,7 @@ func SetDebug(debug bool) {
 	}
 }
 
+// New creates an instance of the asciist service.
 func New() http.Handler {
 	router := gin.Default()
 

@@ -1,3 +1,4 @@
+// Package convert provides the core ASCII art conversion function.
 package convert
 
 import (
@@ -7,12 +8,21 @@ import (
 	"github.com/nfnt/resize"
 )
 
-const characterAspectRatio = 1.0 / 2.0
+// CharacterAspectRatio gives the percentage by which input images' heights
+// will be scaled relative to their native aspect ratio.
+// Characters in most fonts are taller than they are wide, and are
+// even taller when the space between lines is taken into account,
+// resulting in output ASCII "pixels" that are not square.
+const CharacterAspectRatio = 1.0 / 2.0
 
-// http://paulbourke.net/dataformats/asciiart/
+// palette from http://paulbourke.net/dataformats/asciiart/
 var palette = []byte(" .:-=+*#%@")
 var paletteSize = uint8(len(palette))
 
+// FromImage converts the given image to ASCII art, where each line
+// is `width` characters wide, and the height of the output is chosen
+// to preserve the input aspect ratio (taking into account that ASCII
+// "pixels" are not square; see CharacterAspectRatio).
 func FromImage(img image.Image, width uint) ASCIIArt {
 	height := computeHeight(img.Bounds(), width)
 	scaled := resize.Resize(width, height, img, resize.Lanczos3)
@@ -25,7 +35,7 @@ func computeHeight(bounds image.Rectangle, desiredWidth uint) uint {
 	sourceHeight := bounds.Max.Y - bounds.Min.Y
 	sourceAspectRatio := float64(sourceWidth) / float64(sourceHeight)
 
-	return uint(float64(desiredWidth) / sourceAspectRatio * characterAspectRatio)
+	return uint(float64(desiredWidth) / sourceAspectRatio * CharacterAspectRatio)
 }
 
 func toASCII(img image.Image) ASCIIArt {
@@ -48,14 +58,16 @@ func toASCII(img image.Image) ASCIIArt {
 	return chars
 }
 
+const maxLuminance = 255
+
 func colorToByte(c color.Color) byte {
-	gray := color.GrayModel.Convert(c).(color.Gray).Y
+	luminance := color.GrayModel.Convert(c).(color.Gray).Y
 
 	var index uint8
-	if gray == 255 {
+	if luminance == maxLuminance {
 		index = paletteSize - 1
 	} else {
-		index = uint8(float32(gray) / 255.0 * float32(paletteSize))
+		index = uint8(float32(luminance) / maxLuminance * float32(paletteSize))
 	}
 
 	return palette[index]
