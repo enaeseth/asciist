@@ -76,6 +76,38 @@ ok  github.com/enaeseth/asciist/convert    0.043s
 ok  github.com/enaeseth/asciist/service    0.062s
 ```
 
+Protocol
+--------
+
+asciist accepts POST requests to the root URL (`/`). It expects JSON requests and produces JSON responses.
+
+### Request
+
+```json
+{
+  "width": 80,
+  "image": "[base64-encoded image file]"
+}
+```
+
+### Response
+
+#### 200 OK
+
+```json
+{
+  "art": "[ASCII art, no trailing newline]"
+}
+```
+
+#### 400 Bad Request
+
+```json
+{
+  "error": "[brief error message]"
+}
+```
+
 Notes
 -----
 
